@@ -25,9 +25,13 @@ jobs:
         chmod +x ./bin/qvm
 
     - name: Deploy
+      env:
+        SECRET: ${{ secrets.SECRET }}
       run: |
         echo "In the future i'll deploy";
         echo "SECRET: ${SECRET}";
 
     - name: Test
+      env:
+        SECRET: ${{ secrets.SECRET }}
       run: ./bin/qvm
