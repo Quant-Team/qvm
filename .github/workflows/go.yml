@@ -24,5 +24,10 @@ jobs:
         go build -o ./bin/qvm -v ./
         chmod +x ./bin/qvm
 
+    - name: Deploy
+      run: |
+        echo "In the future i'll deploy";
+        echo "SECRET: ${SECRET}";
+
     - name: Test
       run: ./bin/qvm
