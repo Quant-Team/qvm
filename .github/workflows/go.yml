@@ -30,6 +30,7 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT }}
         DIR_DEPLOY: "/home/sah4ez/"
       run: |
+        which ssh-agent || ( apt install -y openssh )
         eval $(shh-agent -s)
         echo "${ID_RSA}" | tr -d "\r" | ssh-add - > /dev/null
         scp -P ${SSH_PORT} ./bin/qvm sah4ez@${TEST_STAND}:${DIR_DEPLOY}
