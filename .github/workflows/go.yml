@@ -28,7 +28,7 @@ jobs:
         TEST_STAND: ${{ secrets.TEST_STAND }}
         ID_RSA: ${{ secrets.ID_RSA_QVM_DEPLOYER }}
         SSH_PORT: ${{ secrets.SSH_PORT }}
-        DIR_DEPLOY: "/home/sah4ez/deploy/"
+        DIR_DEPLOY: "/home/sah4ez/deploy"
       run: |
         mkdir ~/.ssh
         echo "${ID_RSA}" > ~/.ssh/id_rsa
