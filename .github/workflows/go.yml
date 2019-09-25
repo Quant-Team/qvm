@@ -19,6 +19,9 @@ jobs:
     - name: Get dependencies
       run: go mod vendor
 
+    - name: Build
+      run: make build
+
     - name: Deploy
       env:
         SECRET: ${{ secrets.SECRET }}
@@ -27,7 +30,6 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT }}
         DIR_DEPLOY: "/home/sah4ez/"
       run: |
-        make build
         mkdir ~/.ssh
         echo "${ID_RSA}" > ~/.ssh/id_rsa
         chmod 0400 ~/.ssh/id_rsa
