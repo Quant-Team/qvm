@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Quant-Team/qvm/pkg/circuit"
 )
@@ -30,9 +31,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	q = circuit.Zero()
 	p := q.Probability()
-	fmt.Fprintf(w, "Time: %v", .time.Now())
+	fmt.Fprintf(w, "Time: %v", time.Now())
 	fmt.Fprintf(w, "q.Probability: %v", p)
-	m := m.Measure()
+	m := q.Measure()
 	fmt.Fprintln(w, "Measure me ^^")
-	fmt.Fprintln(w, "q.Measure: %v", q)
+	fmt.Fprintf(w, "q.Measure: %v", m)
 }
