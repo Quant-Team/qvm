@@ -6,20 +6,28 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
-	"os"
 	"time"
 )
 
+var (
+	BuildTime = ""
+	GitSHA    = ""
+)
+
 func main() {
+	fmt.Println("sha", GitSHA)
+	fmt.Println("buildTime", BuildTime)
+
 	http.HandleFunc("/", handler)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	env := os.Getenv("SECRET")
-	fmt.Fprintln(w, env)
+	fmt.Fprintln(w, GitSHA)
+	fmt.Fprintln(w, BuildTime)
 
+	fmt.Fprintln(w, "I'm virtual qubit")
 	fmt.Fprintln(w, "Measure me ^^")
 
 	Measure(w)
