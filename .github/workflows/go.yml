@@ -35,4 +35,4 @@ jobs:
         chmod 0400 ~/.ssh/id_rsa
         echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
         scp -P ${SSH_PORT} ./bin/qvm sah4ez@${TEST_STAND}:${DIR_DEPLOY}
-        sudo systemctl restart qvm
+        ssh -P ${SSH_PORT} sah4ez@${TEST_STAND} sudo systemctl restart qvm
