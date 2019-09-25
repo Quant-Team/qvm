@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
+
+	"github.com/Quant-Team/qvm/pkg/circuit"
 )
 
 var (
@@ -27,14 +26,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, GitSHA)
 	fmt.Fprintln(w, BuildTime)
 
-	fmt.Fprintln(w, "I'm virtual qubit")
+	var q circuit.AQubit
+
+	q = circuit.Zero()
+	p := q.Probability()
+	fmt.Fprintf(w, "Time: %v", .time.Now())
+	fmt.Fprintf(w, "q.Probability: %v", p)
+	m := m.Measure()
 	fmt.Fprintln(w, "Measure me ^^")
-
-	Measure(w)
-}
-
-func Measure(w io.Writer) {
-	rand.Seed(time.Now().UnixNano())
-	r := rand.Float32()
-	fmt.Fprintf(w, "%f\n", r)
+	fmt.Fprintln(w, "q.Measure: %v", q)
 }
