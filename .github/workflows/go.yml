@@ -30,8 +30,8 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT }}
         DIR_DEPLOY: "/home/sah4ez/"
       run: |
-        mkdir .ssh
-        echo "${ID_RSA}" > .ssh/id_rsa
-        chmod 0400 .ssh/id_rsa
-        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > .ssh/config
-        scp -i .ssh/id_rsa -F .ssh/config -P ${SSH_PORT} ./bin/qvm sah4ez@${TEST_STAND}:${DIR_DEPLOY}
+        mkdir ~/.ssh
+        echo "${ID_RSA}" > ~/.ssh/id_rsa
+        chmod 0400 ~/.ssh/id_rsa
+        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        scp -P ${SSH_PORT} ./bin/qvm sah4ez@${TEST_STAND}:${DIR_DEPLOY}
