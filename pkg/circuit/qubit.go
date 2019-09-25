@@ -36,6 +36,15 @@ func NewZero(n int) Vector {
 	return v
 }
 
+func (v0 Vector) Mul(z complex128) Vector {
+	v2 := Vector{}
+	for i := range v0 {
+		v2 = append(v2, z*v0[i])
+	}
+
+	return v2
+}
+
 type Qubit struct {
 	v Vector
 }
@@ -66,6 +75,28 @@ func (q *Qubit) Measure() AQubit {
 		sum = sum + p
 	}
 
+	return q
+}
+
+func (q *Qubit) Normalize() *Qubit {
+	var sum float64
+	for _, amp := range q.v {
+		sum = sum + math.Pow(cmplx.Abs(amp), 2)
+	}
+
+	z := 1 / math.Sqrt(sum)
+	q.v = q.v.Mul(complex(z, 0))
+
+	return q
+}
+
+func NewQubit(z ...complex128) *Qubit {
+	v := Vector{}
+	for _, zi := range z {
+		v = append(v, zi)
+	}
+	q := &Qubit{v}
+	q.Normalize()
 	return q
 }
 

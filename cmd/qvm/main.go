@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/cmplx"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -29,11 +31,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	var q circuit.AQubit
 
-	q = circuit.Zero()
+	rand.Seed(time.Now().UnixNano())
+	rnd1 := rand.Float64()
+	rnd2 := rand.Float64()
+
+	q = circuit.NewQubit(
+		cmplx.Sqrt(complex(0, rnd1)),
+		cmplx.Sqrt(complex(rnd2, 0)),
+	)
 	p := q.Probability()
-	fmt.Fprintf(w, "Time: %v", time.Now())
-	fmt.Fprintf(w, "q.Probability: %v", p)
+	fmt.Fprintf(w, "Time: %v\n", time.Now())
+	fmt.Fprintf(w, "q.Probability: %v\n", p)
 	m := q.Measure()
 	fmt.Fprintln(w, "Measure me ^^")
-	fmt.Fprintf(w, "q.Measure: %v", m)
+	fmt.Fprintf(w, "q.Measure: %v\n", m)
 }
