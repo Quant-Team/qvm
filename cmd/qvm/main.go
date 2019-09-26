@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/cmplx"
-	"math/rand"
 	"net/http"
 	"time"
 
-	"github.com/Quant-Team/qvm/pkg/circuit"
+	"github.com/Quant-Team/qvm/pkg/config"
+	"github.com/Quant-Team/qvm/pkg/machine"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -16,33 +16,49 @@ var (
 	GitSHA    = ""
 )
 
+var cfg *config.Register
+
+func init() {
+	cfg = config.FromEnv()
+	fmt.Println("config loaded: ", *cfg)
+}
+
 func main() {
 	fmt.Println("sha", GitSHA)
 	fmt.Println("buildTime", BuildTime)
 
-	http.HandleFunc("/", handler)
+	r := mux.NewRouter()
+	r.HandleFunc("/", handler)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, GitSHA)
 	fmt.Fprintln(w, BuildTime)
-
-	var q circuit.AQubit
-
-	rand.Seed(time.Now().UnixNano())
-	rnd1 := rand.Float64()
-	rnd2 := rand.Float64()
-
-	q = circuit.NewQubit(
-		cmplx.Sqrt(complex(0, rnd1)),
-		cmplx.Sqrt(complex(rnd2, 0)),
-	)
-	p := q.Probability()
 	fmt.Fprintf(w, "Time: %v\n", time.Now())
+
+	state := r.URL.Query().Get("state")
+	fmt.Println("input state:", state)
+
+	bstate, err := machine.ParserRegisterState(state)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err.Error())
+		return
+	}
+
+	register, err := machine.NewRegister(cfg, bstate)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err.Error())
+		return
+	}
+
+	p := register.Probability()
 	fmt.Fprintf(w, "q.Probability: %v\n", p)
-	m := q.Measure()
 	fmt.Fprintln(w, "Measure me ^^")
-	fmt.Fprintf(w, "q.Measure: %v\n", m)
+	m := register.Measure()
+	fmt.Fprintln(w, "q.Measure:")
+	for _, q := range m {
+		fmt.Fprintf(w, "%v\n", q)
+	}
 }
