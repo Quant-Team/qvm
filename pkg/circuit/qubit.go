@@ -1,10 +1,13 @@
 package circuit
 
 import (
+	"fmt"
 	"math"
 	"math/cmplx"
 	"math/rand"
 	"time"
+
+	v "github.com/Quant-Team/qvm/pkg/math/vector"
 )
 
 var _ Qubiter = Zero()
@@ -16,43 +19,16 @@ type Qubiter interface {
 	Probability() []float64
 }
 
-type Vector []complex128
-
-func New(z ...complex128) Vector {
-	v := Vector{}
-	for _, zi := range z {
-		v = append(v, zi)
-	}
-
-	return v
-}
-
-func NewZero(n int) Vector {
-	v := Vector{}
-	for i := 0; i < n; i++ {
-		v = append(v, 0)
-	}
-
-	return v
-}
-
-func (v0 Vector) Mul(z complex128) Vector {
-	v2 := Vector{}
-	for i := range v0 {
-		v2 = append(v2, z*v0[i])
-	}
-
-	return v2
-}
-
 type Qubit struct {
-	v Vector
+	vec *v.Vector
 }
 
 func (q *Qubit) Probability() []float64 {
 	list := []float64{}
-	for _, amp := range q.v {
-		p := math.Pow(cmplx.Abs(amp), 2)
+	iterator := q.vec.Iterator()
+	for i, err := iterator.Next(); err == nil; i, err = iterator.Next() {
+		amp, _ := q.vec.At(i)
+		p := math.Pow(cmplx.Abs(amp.(complex128)), 2)
 		list = append(list, p)
 	}
 
@@ -68,8 +44,8 @@ func (q *Qubit) Measure() Qubiter {
 	var sum float64
 	for i, p := range plist {
 		if sum <= r && r < sum+p {
-			q.v = NewZero(len(q.v))
-			q.v[i] = 1
+			q.vec = v.NewZero(q.vec.Size())
+			q.vec.Set(i, 1)
 			break
 		}
 		sum = sum + p
@@ -78,36 +54,39 @@ func (q *Qubit) Measure() Qubiter {
 	return q
 }
 
+func (q *Qubit) String() string {
+	return fmt.Sprintf("%s", q.vec)
+}
+
 func (q *Qubit) Normalize() *Qubit {
 	var sum float64
-	for _, amp := range q.v {
-		sum = sum + math.Pow(cmplx.Abs(amp), 2)
+	iterator := q.vec.Iterator()
+	for i, err := iterator.Next(); err == nil; i, err = iterator.Next() {
+		amp, _ := q.vec.At(i)
+		sum = sum + math.Pow(cmplx.Abs(amp.(complex128)), 2)
 	}
 
 	z := 1 / math.Sqrt(sum)
-	q.v = q.v.Mul(complex(z, 0))
+	q.vec = q.vec.MulScalar(v.NewScalar(complex(z, 0)))
 
 	return q
 }
 
 func NewQubit(z ...complex128) *Qubit {
-	v := Vector{}
-	for _, zi := range z {
-		v = append(v, zi)
-	}
-	q := &Qubit{v}
+	vec := v.New(z...)
+	q := &Qubit{vec}
 	q.Normalize()
 	return q
 }
 
 func Zero() *Qubit {
 	return &Qubit{
-		v: Vector{cmplx.Sqrt(0 + 0i), cmplx.Sqrt(1 + 1i)},
+		vec: v.New(cmplx.Sqrt(0+0i), cmplx.Sqrt(1+0i)),
 	}
 }
 
 func One() *Qubit {
 	return &Qubit{
-		v: Vector{cmplx.Sqrt(1 + 1i), cmplx.Sqrt(0 + 0i)},
+		vec: v.New(cmplx.Sqrt(1+0i), cmplx.Sqrt(0+0i)),
 	}
 }
