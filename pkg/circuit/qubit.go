@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-var _ AQubit = Zero()
-var _ AQubit = One()
+var _ Qubiter = Zero()
+var _ Qubiter = One()
 
-// AQubit - abstractio interface of qubit
-type AQubit interface {
-	Measure() AQubit
+// Qubiter - abstractio interface of qubit
+type Qubiter interface {
+	Measure() Qubiter
 	Probability() []float64
 }
 
@@ -59,7 +59,7 @@ func (q *Qubit) Probability() []float64 {
 	return list
 }
 
-func (q *Qubit) Measure() AQubit {
+func (q *Qubit) Measure() Qubiter {
 
 	rand.Seed(time.Now().UnixNano())
 	r := rand.Float64()

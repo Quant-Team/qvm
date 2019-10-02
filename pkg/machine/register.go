@@ -8,7 +8,7 @@ import (
 )
 
 type Register struct {
-	q []circuit.AQubit
+	q []circuit.Qubiter
 }
 
 type Bit int
@@ -30,7 +30,7 @@ func (r *Register) Probability() [][]float64 {
 	return t
 }
 
-func (r *Register) Measure() []circuit.AQubit {
+func (r *Register) Measure() []circuit.Qubiter {
 	for i := range r.q {
 		r.q[i] = r.q[i].Measure()
 	}
@@ -42,7 +42,7 @@ func NewRegister(cfg *config.Register, state []Bit) (r *Register, err error) {
 		err = ErrInvalidCountQubit
 		return
 	}
-	r = &Register{q: []circuit.AQubit{}}
+	r = &Register{q: []circuit.Qubiter{}}
 
 	for _, b := range state {
 		switch b {
