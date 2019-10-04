@@ -7,7 +7,12 @@ import (
 	"github.com/Quant-Team/qvm/pkg/config"
 )
 
-type Register struct {
+type Register interface {
+	Probability() [][]float64
+	Measure() []circuit.Qubiter
+}
+
+type register struct {
 	q []circuit.Qubiter
 }
 
@@ -22,7 +27,7 @@ var (
 	ErrInvalidCountQubit = fmt.Errorf("Invalid count qubit in config and init state")
 )
 
-func (r *Register) Probability() [][]float64 {
+func (r *register) Probability() [][]float64 {
 	t := [][]float64{}
 	for _, q := range r.q {
 		t = append(t, q.Probability())
@@ -30,19 +35,19 @@ func (r *Register) Probability() [][]float64 {
 	return t
 }
 
-func (r *Register) Measure() []circuit.Qubiter {
+func (r *register) Measure() []circuit.Qubiter {
 	for i := range r.q {
 		r.q[i] = r.q[i].Measure()
 	}
 	return r.q
 }
 
-func NewRegister(cfg *config.Register, state []Bit) (r *Register, err error) {
+func NewRegister(cfg *config.Register, state []Bit) (r *register, err error) {
 	if len(state) != cfg.QubitCount {
 		err = ErrInvalidCountQubit
 		return
 	}
-	r = &Register{q: []circuit.Qubiter{}}
+	r = &register{q: []circuit.Qubiter{}}
 
 	for _, b := range state {
 		switch b {
