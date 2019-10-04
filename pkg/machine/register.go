@@ -7,6 +7,8 @@ import (
 	"github.com/Quant-Team/qvm/pkg/config"
 )
 
+var _ Register = &register{}
+
 type Register interface {
 	Probability() [][]float64
 	Measure() []circuit.Qubiter
