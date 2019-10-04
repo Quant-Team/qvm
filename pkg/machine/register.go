@@ -42,12 +42,12 @@ func (r *register) Measure() []circuit.Qubiter {
 	return r.q
 }
 
-func NewRegister(cfg *config.Register, state []Bit) (Register, error) {
+func NewRegister(cfg *config.Register, state []Bit) (r *register, err error) {
 	if len(state) != cfg.QubitCount {
-		err := ErrInvalidCountQubit
-		return nil, err
+		err = ErrInvalidCountQubit
+		return
 	}
-	r := &register{q: []circuit.Qubiter{}}
+	r = &register{q: []circuit.Qubiter{}}
 
 	for _, b := range state {
 		switch b {
@@ -57,5 +57,5 @@ func NewRegister(cfg *config.Register, state []Bit) (Register, error) {
 			r.q = append(r.q, circuit.Zero())
 		}
 	}
-	return r, nil
+	return
 }
