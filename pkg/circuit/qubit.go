@@ -112,12 +112,12 @@ func NewQubit(z ...complex128) *Qubit {
 
 func Zero() *Qubit {
 	return &Qubit{
-		vec: v.New(cmplx.Sqrt(0+0i), cmplx.Sqrt(1+0i)),
+		vec: v.New(cmplx.Sqrt(1+0i), cmplx.Sqrt(0+0i)),
 	}
 }
 
 func One() *Qubit {
 	return &Qubit{
-		vec: v.New(cmplx.Sqrt(1+0i), cmplx.Sqrt(0+0i)),
+		vec: v.New(cmplx.Sqrt(0+0i), cmplx.Sqrt(1+0i)),
 	}
 }
