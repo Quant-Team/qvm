@@ -1,6 +1,7 @@
 package vector
 
 import (
+	"github.com/Quant-Team/qvm/pkg/circuit/gates"
 	"gorgonia.org/tensor"
 )
 
@@ -44,8 +45,29 @@ func (v *Vector) Set(i int, c complex128) *Vector {
 }
 
 func (v *Vector) MulScalar(s *Scalar) *Vector {
-	d, _ := v.Dense.Mul(s.Dense)
+	d, err := v.Dense.MulScalar(s.Dense, false)
+	if err != nil {
+		panic(err)
+	}
 	return &Vector{d}
+}
+
+func (v *Vector) ApplyGate(s gates.Gate) *Vector {
+	ij := s.Shape()
+
+	l := []complex128{}
+	for i := 0; i < ij[0]; i++ {
+		tmp := complex(0, 0)
+		iterator := v.Iterator()
+		for j, err := iterator.Next(); err == nil; j, err = iterator.Next() {
+			vAmplitude, _ := v.At(j)
+			mAmplitude, _ := s.At(i, j)
+			tmp = tmp + mAmplitude.(complex128)*vAmplitude.(complex128)
+		}
+		l = append(l, tmp)
+	}
+
+	return &Vector{tensor.New(tensor.WithShape(ij[0]), tensor.WithBacking(l))}
 }
 
 func (v *Vector) Size() int {

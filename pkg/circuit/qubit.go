@@ -7,16 +7,22 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/Quant-Team/qvm/pkg/circuit/gates"
+	m "github.com/Quant-Team/qvm/pkg/math/matrix"
 	v "github.com/Quant-Team/qvm/pkg/math/vector"
 )
 
 var _ Qubiter = Zero()
 var _ Qubiter = One()
 
+type Gate m.Matrix
+
 // Qubiter - abstractio interface of qubit
 type Qubiter interface {
 	Measure() Qubiter
 	Probability() []float64
+	Apply(gates.Gate) Qubiter
+	Equal(Qubiter) bool
 }
 
 type Qubit struct {
@@ -70,6 +76,31 @@ func (q *Qubit) Normalize() *Qubit {
 	q.vec = q.vec.MulScalar(v.NewScalar(complex(z, 0)))
 
 	return q
+}
+
+func (q *Qubit) Apply(g gates.Gate) Qubiter {
+	q.vec = q.vec.ApplyGate(g)
+	return q
+}
+
+func (q0 *Qubit) Equal(q Qubiter) bool {
+	q1, ok := q.(*Qubit)
+	if !ok {
+		return false
+	}
+	if q0.vec.Shape()[0] != q1.vec.Shape()[0] {
+		return false
+	}
+
+	iterator := q0.vec.Iterator()
+	for i, err := iterator.Next(); err == nil; i, err = iterator.Next() {
+		left, _ := q0.vec.At(i)
+		right, _ := q1.vec.At(i)
+		if left.(complex128) != right.(complex128) {
+			return false
+		}
+	}
+	return true
 }
 
 func NewQubit(z ...complex128) *Qubit {
