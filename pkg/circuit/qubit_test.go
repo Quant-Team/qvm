@@ -70,3 +70,8 @@ func TestQubitApplyZGate(t *testing.T) {
 		t.Fatalf("amplitudes not equals, %s, %s", q, expQ)
 	}
 }
+
+func TestApplyHCNOTGate(t *testing.T) {
+
+	t.Fatal("implement me")
+}
