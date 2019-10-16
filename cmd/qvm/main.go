@@ -57,8 +57,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "q.Probability: %v\n", p)
 	fmt.Fprintln(w, "Measure me ^^")
 	m := register.Measure()
+	v := register.Vector()
 	fmt.Fprintln(w, "q.Measure:")
 	for _, q := range m {
 		fmt.Fprintf(w, "%v\n", q)
 	}
+	fmt.Fprintf(w, "size: %d q.Vector:%s\n", v.Size(), v)
 }

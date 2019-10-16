@@ -13,7 +13,7 @@ type Scalar struct {
 	*tensor.Dense
 }
 
-func (a *Vector) ProductVector(b Vector) Vector {
+func (a *Vector) ProductVector(b *Vector) *Vector {
 	if !a.Shape().IsVector() || !b.Shape().IsVector() {
 		panic("should be vectors")
 	}
@@ -31,7 +31,7 @@ func (a *Vector) ProductVector(b Vector) Vector {
 			p = p + 1
 		}
 	}
-	return Vector{k}
+	return &Vector{k}
 }
 
 func (v *Vector) Add(c complex128) *Vector {

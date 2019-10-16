@@ -5,6 +5,7 @@ import (
 
 	"github.com/Quant-Team/qvm/pkg/circuit"
 	"github.com/Quant-Team/qvm/pkg/config"
+	"github.com/Quant-Team/qvm/pkg/math/vector"
 )
 
 var _ Register = &register{}
@@ -16,6 +17,7 @@ type Register interface {
 
 type register struct {
 	q []circuit.Qubiter
+	v *vector.Vector
 }
 
 type Bit int
@@ -44,19 +46,42 @@ func (r *register) Measure() []circuit.Qubiter {
 	return r.q
 }
 
+func (r *register) Vector() *vector.Vector {
+	return r.v
+}
+
+func (r *register) One() {
+	r.q = append(r.q, circuit.One())
+	r.v = r.v.ProductVector(vector.New(0, 1))
+}
+
+func (r *register) Zero() {
+	r.q = append(r.q, circuit.Zero())
+	r.v = r.v.ProductVector(vector.New(1, 0))
+}
+
 func NewRegister(cfg *config.Register, state []Bit) (r *register, err error) {
 	if len(state) != cfg.QubitCount {
 		err = ErrInvalidCountQubit
 		return
 	}
-	r = &register{q: []circuit.Qubiter{}}
+	v := vector.New(1, 0)
+	q := []circuit.Qubiter{circuit.Zero()}
+	if state[0] == One {
+		q = []circuit.Qubiter{circuit.One()}
+		v = vector.New(0, 1)
+	}
+	r = &register{
+		q: q,
+		v: v,
+	}
 
-	for _, b := range state {
+	for _, b := range state[1:] {
 		switch b {
 		case One:
-			r.q = append(r.q, circuit.One())
+			r.One()
 		case Zero:
-			r.q = append(r.q, circuit.Zero())
+			r.Zero()
 		}
 	}
 	return
