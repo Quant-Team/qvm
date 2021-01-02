@@ -4,4 +4,4 @@ grun=java org.antlr.v4.gui.TestRig
 
 .PHONY: qasm3
 qasm3:
-	$(antlr4) -Dlanguage=Go -o $@ ./$@.g4
+	$(antlr4) -Dlanguage=Go -package $@ -o $@ ./$@.g4

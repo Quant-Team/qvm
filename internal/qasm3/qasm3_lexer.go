@@ -1,6 +1,6 @@
 // Code generated from ./qasm3.g4 by ANTLR 4.9. DO NOT EDIT.
 
-package parser
+package qasm3
 
 import (
 	"fmt"

@@ -1,7 +1,6 @@
 // Code generated from ./qasm3.g4 by ANTLR 4.9. DO NOT EDIT.
 
-package parser // qasm3
-
+package qasm3 // qasm3
 import "github.com/antlr/antlr4/runtime/Go/antlr"
 
 // Baseqasm3Listener is a complete listener for a parse tree produced by qasm3Parser.

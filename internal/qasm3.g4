@@ -144,7 +144,7 @@ noDesignatorDeclaration
     ;
 
 bitDeclaration
-    : bitType Identifier designator
+    : bitType Identifier designator?
     ;
 
 classicalVariableDeclaration
