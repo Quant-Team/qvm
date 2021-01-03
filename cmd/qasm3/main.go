@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	stdpath "path"
 
 	"github.com/Quant-Team/qvm/pkg/machine"
 )
@@ -21,10 +22,10 @@ func init() {
 
 func main() {
 
-	register := machine.NewRegisterQasm(debug)
+	dir := stdpath.Dir(path)
+	register := machine.NewRegisterQasm(debug, dir)
 
-	register.ParseProgramm(path)
-
+	register.ParseProgram(path)
 	w := os.Stdout
 	pp := register.Probability()
 	fmt.Fprintf(w, "q.Probability: %v\n", pp)

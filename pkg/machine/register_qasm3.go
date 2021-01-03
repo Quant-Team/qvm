@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -24,7 +25,8 @@ func (r *register) ExitVersion(c *qasm3.VersionContext) {
 func (r *register) ExitInclude(c *qasm3.IncludeContext) {
 	include := c.StringLiteral().GetText()
 	fmt.Println("Include:", include)
-	r.ParseProgramm(strings.ReplaceAll(include, "\"", ""))
+	ipath := path.Join(r.dir, strings.ReplaceAll(include, "\"", ""))
+	r.ParseProgram(ipath)
 }
 
 func (r *register) EnterQuantumDeclaration(c *qasm3.QuantumDeclarationContext) {
@@ -35,8 +37,9 @@ func (r *register) EnterQuantumDeclaration(c *qasm3.QuantumDeclarationContext) {
 				switch v2 := ch2.(type) {
 				case *qasm3.DesignatorContext:
 					i, _ := strconv.Atoi(v2.Expression().GetText())
+					r.qbName[v.Identifier().GetText()] = r.NewRegPos(i)
 					for j := 0; j < i; j++ {
-						r.q = append(r.q, circuit.Zero())
+						r.q = append(r.q, nil)
 					}
 				}
 			}
@@ -44,26 +47,48 @@ func (r *register) EnterQuantumDeclaration(c *qasm3.QuantumDeclarationContext) {
 	}
 }
 
+func (r *register) EnterQuantumGateCall(c *qasm3.QuantumGateCallContext) {
+	v := c.QuantumGateName().GetText()
+	switch v {
+	case "reset":
+		qb := c.IndexIdentifierList().GetText()
+		rp := r.qbName[qb]
+		for j := rp.GetStart(); j < rp.GetEnd(); j++ {
+			r.q[j] = circuit.Zero()
+		}
+	default:
+		if _, ok := r.gates[v]; ok {
+			fmt.Println(">>>", v)
+		}
+	}
+}
+
+func (r *register) EnterGlobalStatement(c *qasm3.GlobalStatementContext) {
+	fmt.Println(">>>", c.GetText())
+}
+
 func (r *register) EnterQuantumGateDefinition(c *qasm3.QuantumGateDefinitionContext) {
-	signature := c.QuantumGateSignature().GetText()
-	if _, ok := r.gates[signature]; !ok {
-		r.gates[signature] = struct{}{}
+	signature := c.QuantumGateSignature().(*qasm3.QuantumGateSignatureContext)
+	i := signature.Identifier().GetText()
+	if _, ok := r.gates[i]; !ok {
+		r.gates[i] = struct{}{}
 		return
 	}
-	panic("gate " + signature + " exists")
+	panic("gate " + i + " exists")
 }
 
 func (r *register) ExitBitDeclaration(c *qasm3.BitDeclarationContext) {
 	r.bits[c.Identifier().GetText()] = Zero
 }
 
-func (r *register) ParseProgramm(path string) {
+func (r *register) ParseProgram(path string) {
 	qasmFile, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("read schema failed", err.Error())
 		os.Exit(2)
 	}
 
+	fmt.Println("parse:", path)
 	// Setup the input
 	is := antlr.NewInputStream(string(qasmFile))
 
@@ -87,5 +112,9 @@ func (r *register) ParseProgramm(path string) {
 	p := qasm3.Newqasm3Parser(stream)
 
 	// Finally parse the expression (by walking the tree)
-	antlr.ParseTreeWalkerDefault.Walk(r, p.Program())
+	var parse antlr.Tree = p.Program()
+	if parse == nil {
+		parse = p.Statement()
+	}
+	antlr.ParseTreeWalkerDefault.Walk(r, parse)
 }
