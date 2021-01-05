@@ -450,7 +450,7 @@ ARROW : '->' ;
 Constant : 'pi' | 'π' | 'tau' | '𝜏' | 'euler' | 'e' ;
 
 Whitespace : [ \t]+ -> skip ;
-Newline : [\r\n]+ -> skip ;
+Newline : [\n]+ -> skip ;
 
 fragment Digit : [0-9] ;
 Integer : Digit+ ;
@@ -482,5 +482,5 @@ fragment AnyString : ~[ \t\r\n]+? ;
 fragment Any : ( AnyString | Whitespace | Newline )+ ;
 fragment AnyBlock : LBRACE Any? RBRACE ;
 
-LineComment : '//' Any ; // Token because Any matches all strings
+LineComment : '//' ~('\r' | '\n')* ; // Token because Any matches all strings
 BlockComment : '/*' Any '*/' ; // Token because Any matches all strings

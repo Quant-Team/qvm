@@ -10,6 +10,7 @@ import (
 
 	"github.com/Quant-Team/qvm/internal/qasm3"
 	"github.com/Quant-Team/qvm/pkg/circuit"
+	"github.com/Quant-Team/qvm/pkg/circuit/gates/one"
 	"github.com/antlr/antlr4/runtime/Go/antlr"
 )
 
@@ -56,15 +57,26 @@ func (r *register) EnterQuantumGateCall(c *qasm3.QuantumGateCallContext) {
 		for j := rp.GetStart(); j < rp.GetEnd(); j++ {
 			r.q[j] = circuit.Zero()
 		}
+	case "U":
+	case "CX":
 	default:
-		if _, ok := r.gates[v]; ok {
-			fmt.Println(">>>", v)
+		if _, ok := r.gates[v]; !ok {
+			panic("not found defenition of gate: " + v)
+		}
+		switch v {
+		case "h":
+			ci := c.IndexIdentifierList().(*qasm3.IndexIdentifierListContext)
+			ci2 := ci.IndexIdentifier(0).(*qasm3.IndexIdentifierContext)
+			di := ci2.Designator().(*qasm3.DesignatorContext)
+			i, _ := strconv.Atoi(di.Expression().GetText())
+			r.q[i].Apply(one.H())
+		case "cx":
 		}
 	}
 }
 
 func (r *register) EnterGlobalStatement(c *qasm3.GlobalStatementContext) {
-	fmt.Println(">>>", c.GetText())
+	// fmt.Println(">>", c.GetText())
 }
 
 func (r *register) EnterQuantumGateDefinition(c *qasm3.QuantumGateDefinitionContext) {
