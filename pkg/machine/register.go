@@ -3,6 +3,7 @@ package machine
 import (
 	"fmt"
 
+	"github.com/Quant-Team/qvm/internal/qasm3"
 	"github.com/Quant-Team/qvm/pkg/circuit"
 	"github.com/Quant-Team/qvm/pkg/config"
 )
@@ -14,8 +15,29 @@ type Register interface {
 	Measure() []circuit.Qubiter
 }
 
+type regPos [2]int
+
+func (r *register) NewRegPos(length int) regPos {
+	return regPos([2]int{len(r.q), length})
+}
+
+func (r regPos) GetStart() int {
+	return r[0]
+}
+
+func (r regPos) GetEnd() int {
+	return r[1]
+}
+
 type register struct {
-	q []circuit.Qubiter
+	*qasm3.Baseqasm3Listener
+
+	debug  bool
+	dir    string
+	bits   map[string]Bit
+	gates  map[string]struct{}
+	qbName map[string]regPos
+	q      []circuit.Qubiter
 }
 
 type Bit int
@@ -60,4 +82,15 @@ func NewRegister(cfg *config.Register, state []Bit) (r *register, err error) {
 		}
 	}
 	return
+}
+
+func NewRegisterQasm(debug bool, dir string) (r *register) {
+	return &register{
+		debug:  debug,
+		dir:    dir,
+		q:      []circuit.Qubiter{},
+		qbName: map[string]regPos{},
+		bits:   map[string]Bit{},
+		gates:  map[string]struct{}{},
+	}
 }

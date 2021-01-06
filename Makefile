@@ -7,3 +7,12 @@ build:
 
 clean:
 	rm -rf ./bin
+
+qasm3:
+	$(MAKE) -C ./internal $@
+
+qasm3-go:
+	go build -o ./bin/qasm3 -v ./cmd/qasm3/.
+
+.PHONY: cmd-qasm
+gen-qasm: qasm3 qasm3-go
